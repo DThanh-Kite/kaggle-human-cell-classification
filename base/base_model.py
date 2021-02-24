@@ -28,7 +28,9 @@ class BaseModel(pl.LightningModule):
         self.save_hyperparameters(config.config)
 
     def training_step(self, batch, batch_idx):
-        data, target = batch
+        data, target, index = batch
+        data = data.cuda()
+        target = target.cuda()
 
         output = self.forward(data)
         loss = self.criterion(output, target)
@@ -48,7 +50,9 @@ class BaseModel(pl.LightningModule):
         return [optimizer], [lr_scheduler]
 
     def validation_step(self, batch, batch_idx):
-        data, target = batch
+        data, target, index = batch
+        data = data.cuda()
+        target = target.cuda()
         output = self.forward(data)
         loss = self.criterion(output, target)
 

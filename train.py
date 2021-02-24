@@ -33,7 +33,7 @@ def main(config):
 
     # build model architecture, then print to console
     model = config.init_obj('arch', module_arch, criterion=criterion, metric_ftns=metrics, config=config)
-    logger.info(model)
+    # logger.info(model)
 
     early_stop_mode, early_stop_monitor = config['trainer']['monitor']. split(' ')
     early_stop_callback = EarlyStopping(
