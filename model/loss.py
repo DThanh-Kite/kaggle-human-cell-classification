@@ -2,6 +2,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import pytorch_lightning as pl
 
 
 def nll_loss(output, target):
@@ -12,7 +13,7 @@ def focal_loss(output, target):
     return FocalLoss()(output, target)
 
 
-class FocalLoss(nn.Module):
+class FocalLoss(pl.LightningModule):
     def __init__(self, gamma=2):
         super().__init__()
         self.gamma = gamma
@@ -32,7 +33,7 @@ class FocalLoss(nn.Module):
         return loss.sum(dim=1).mean()
 
 
-class ArcFaceLoss(nn.modules.Module):
+class ArcFaceLoss(pl.LightningModule):
     def __init__(self, s=30.0, m=0.5):
         super(ArcFaceLoss, self).__init__()
         self.classify_loss = nn.CrossEntropyLoss()
@@ -52,7 +53,7 @@ class ArcFaceLoss(nn.modules.Module):
         else:
             phi = torch.where(cosine > self.th, phi, cosine - self.mm)
 
-        one_hot = torch.zeros(cosine.size(), device='cuda')
+        one_hot = torch.zeros(cosine.size(), device=self.device)
         one_hot.scatter_(1, labels.view(-1, 1).long(), 1)
         # -------------torch.where(out_i = {x_i if condition_i else y_i) -------------
         output = (one_hot * phi) + ((1.0 - one_hot) * cosine)

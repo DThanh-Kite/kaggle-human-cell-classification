@@ -10,6 +10,7 @@ class BaseDataLoader(pl.LightningDataModule):
     """
     Base class for all data loaders
     """
+
     def __init__(self, dataset, batch_size, shuffle, validation_split, num_workers, collate_fn=default_collate):
         super().__init__()
         self.validation_split = validation_split
@@ -45,8 +46,8 @@ class BaseDataLoader(pl.LightningDataModule):
         valid_idx = idx_full[0:len_valid]
         train_idx = np.delete(idx_full, np.arange(0, len_valid))
 
-        train_sampler, valid_sampler = random_split(self.init_kwargs.dataset, [len(train_idx), len(valid_idx)])
-
+        train_sampler, valid_sampler = random_split(
+            self.init_kwargs.dataset, [len(train_idx), len(valid_idx)])
 
         # turn off shuffle option which is mutually exclusive with sampler
         self.shuffle = False
@@ -56,13 +57,13 @@ class BaseDataLoader(pl.LightningDataModule):
         self.valid_sampler = valid_sampler
 
     def train_dataloader(self):
-        return DataLoader(self.train_sampler, batch_size=self.init_kwargs.batch_size)
+        return DataLoader(self.train_sampler, batch_size=self.init_kwargs.batch_size, num_workers=self.init_kwargs.num_workers)
 
     def val_dataloader(self):
-        return DataLoader(self.valid_sampler, batch_size=self.init_kwargs.batch_size)
+        return DataLoader(self.valid_sampler, batch_size=self.init_kwargs.batch_size, num_workers=self.init_kwargs.num_workers)
 
     def test_dataloader(self):
-        return DataLoader(self.valid_sampler, batch_size=self.init_kwargs.batch_size)
+        return DataLoader(self.valid_sampler, batch_size=self.init_kwargs.batch_size, num_workers=self.init_kwargs.num_workers)
 
     def split_validation(self):
         if self.valid_sampler is None:

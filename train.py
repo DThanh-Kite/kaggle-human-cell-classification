@@ -27,12 +27,8 @@ def main(config):
     # setup data_loader instances
     data_loader = config.init_obj('data_loader', module_data)
 
-    # get function handles of loss and metrics
-    criterion = getattr(module_loss, config['loss'])
-    metrics = [getattr(module_metric, met) for met in config['metrics']]
-
     # build model architecture, then print to console
-    model = config.init_obj('arch', module_arch, criterion=criterion, metric_ftns=metrics, config=config)
+    model = config.init_obj('arch', module_arch, config=config)
     # logger.info(model)
 
     early_stop_mode, early_stop_monitor = config['trainer']['monitor']. split(' ')

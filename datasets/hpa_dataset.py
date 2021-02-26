@@ -149,7 +149,7 @@ class HPADataset(Dataset):
 
         img = img.astype(np.float32)
         img = img / 255.0
-        img = image_to_tensor(img)
+        img = img = self.transform(img)
 
         # Create label 
         label = self.labels[index]

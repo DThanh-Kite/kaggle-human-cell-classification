@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import pytorch_lightning as pl
 from torchvision.models import resnet34
 from base import BaseModel
 from .loss import ArcFaceLoss
@@ -14,10 +15,8 @@ class Resnet(BaseModel):
                  in_channels=3,
                  dropout=False,
                  pretrained=True,
-                 criterion=None,
-                 metric_ftns=None,
                  config={}):
-        super().__init__(criterion, metric_ftns, config)
+        super().__init__(config)
         self.dropout = dropout
 
         if backbone == 'resnet18':
@@ -99,7 +98,7 @@ class Resnet(BaseModel):
             return x
 
 
-class ArcMarginProduct(nn.Module):
+class ArcMarginProduct(pl.LightningModule):
     r"""Implement of large margin arc distance: :
         Args:
             in_features: size of each input sample
@@ -119,7 +118,7 @@ class ArcMarginProduct(nn.Module):
         self.weight.data.uniform_(-stdv, stdv)
 
     def forward(self, features):
-        cosine = F.linear(F.normalize(features), F.normalize(self.weight.cuda()))
+        cosine = F.linear(F.normalize(features), F.normalize(self.weight))
         return cosine
 
 

@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import numpy as np
 import pytorch_lightning as pl
+import model.loss as module_loss
+import model.metric as module_metric
 from abc import abstractmethod
 
 
@@ -9,12 +11,13 @@ class BaseModel(pl.LightningModule):
     """
     Base class for all models
     """
-    def __init__(self, criterion, metric_ftns, config):
+    def __init__(self, config):
         super().__init__()
         self.config = config
 
-        self.criterion = criterion
-        self.metric_ftns = metric_ftns
+        # get function handles of loss and metrics
+        self.criterion = getattr(module_loss, config['loss'])
+        self.metric_ftns = [getattr(module_metric, met) for met in config['metrics']]
 
         cfg_trainer = config['trainer']
         self.epochs = cfg_trainer['epochs']
@@ -29,8 +32,6 @@ class BaseModel(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         data, target, index = batch
-        data = data.cuda()
-        target = target.cuda()
 
         output = self.forward(data)
         loss = self.criterion(output, target)
@@ -51,8 +52,6 @@ class BaseModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         data, target, index = batch
-        data = data.cuda()
-        target = target.cuda()
         output = self.forward(data)
         loss = self.criterion(output, target)
 
